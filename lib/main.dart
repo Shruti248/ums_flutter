@@ -18,40 +18,71 @@ class MyForm extends StatefulWidget {
 
 class _MyFormState extends State<MyForm> {
   var _myFormKey=GlobalKey<FormState>();
+  GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
+  // var _password = TextEditingController();
+  // var _confirmPassword = TextEditingController();
 
-  var _password = TextEditingController();
-  var _confirmPassword = TextEditingController();
+  // Declare controllers for each form field
+  var _firstNameController = TextEditingController();
+  var _lastNameController = TextEditingController();
+  var _emailController = TextEditingController();
+  var _passwordController = TextEditingController();
+  var _confirmPasswordController = TextEditingController();
+  var _contactNumberController = TextEditingController();
 
   late Future<Map<String, dynamic>> newUser;
 
-  Future<Map<String, dynamic>> userRegistration() async {
+  // Future<Map<String, dynamic>> userRegistration() async {
+  //   try {
+  //     final dio = Dio();
+  //     dio.options.headers['Access-Control-Allow-Origin'] = '*';
+  //
+  //     final res = await dio.post(
+  //       'http://localhost:3000/api/v1/register',
+  //       data:         {
+  //         "firstName": "abc",
+  //         "lastName": "xyz",
+  //         "email": "t@gmail.com",
+  //         "password": "hahuihuiygvb",
+  //         "profilePic": "",
+  //         "contactNumber": "9086541234",
+  //       },
+  //     );
+  //
+  //     if (res.statusCode == 201) {
+  //       final data = res.data; // No need to use jsonDecode since Dio does it automatically
+  //       print(data);
+  //       return data;
+  //     } else {
+  //       throw "Failed to register. Status code: ${res.statusCode}";
+  //     }
+  //   } catch (err) {
+  //     print('Error during registration: $err');
+  //     throw err.toString();
+  //   }
+  // }
+
+  Future<Map<String, dynamic>> userRegistration({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String profilePic,
+    required String contactNumber,
+  }) async {
     try {
       final dio = Dio();
       dio.options.headers['Access-Control-Allow-Origin'] = '*';
-      //
-      // final formData = FormData.fromMap({
-      //   'data': json.encode(
-      //     {
-      //       "firstName": "abc",
-      //       "lastName": "xyz",
-      //       "email": "r@gmail.com",
-      //       "password": "hahuihuiygvb",
-      //       "profilePic": "",
-      //       "contactNumber": "9086541234",
-      //     },
-      //   ),
-      // });
-
 
       final res = await dio.post(
         'http://localhost:3000/api/v1/register',
-        data:         {
-          "firstName": "abc",
-          "lastName": "xyz",
-          "email": "t@gmail.com",
-          "password": "hahuihuiygvb",
-          "profilePic": "",
-          "contactNumber": "9086541234",
+        data: {
+          'firstName': firstName,
+          'lastName': lastName,
+          'email': email,
+          'password': password,
+          'profilePic': '',
+          'contactNumber': contactNumber,
         },
       );
 
@@ -60,7 +91,7 @@ class _MyFormState extends State<MyForm> {
         print(data);
         return data;
       } else {
-        throw "Failed to register. Status code: ${res.statusCode}";
+        throw 'Failed to register. Status code: ${res.statusCode}';
       }
     } catch (err) {
       print('Error during registration: $err');
@@ -68,10 +99,10 @@ class _MyFormState extends State<MyForm> {
     }
   }
 
-  void initState() {
-    super.initState();
-    newUser = userRegistration();
-  }
+  // void initState() {
+  //   super.initState();
+  //   newUser = userRegistration(firstName: _firstNameController.value.text , lastName: _lastNameController.value.text , email: _emailController.value.text , password: _passwordController.value.text , profilePic : "" , contactNumber: _contactNumberController.value.text);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +123,7 @@ class _MyFormState extends State<MyForm> {
                  // Firstname
                  Expanded(child:
                    TextFormField(
+                     controller: _firstNameController,
                      validator: (String? firstName){
                        if(firstName == null || firstName.isEmpty){
                          return "Required";
@@ -113,6 +145,7 @@ class _MyFormState extends State<MyForm> {
                  // last name
                  Expanded(child:
                    TextFormField(
+                     controller: _lastNameController,
                      validator: (String? lastName){
                        if(lastName == null || lastName.isEmpty){
                          return "Required";
@@ -136,6 +169,7 @@ class _MyFormState extends State<MyForm> {
 
                     // email
               TextFormField(
+                controller: _emailController,
                       validator: (String? email){
                         if(email == null || email.isEmpty){
                           return "Required";
@@ -155,7 +189,7 @@ class _MyFormState extends State<MyForm> {
 
               // password
               TextFormField(
-                controller: _password,
+                controller: _passwordController,
                 validator: (String? password){
                   if(password == null || password.isEmpty){
                     return "Required";
@@ -180,7 +214,7 @@ class _MyFormState extends State<MyForm> {
 
               // confirm password
               TextFormField(
-                controller: _confirmPassword,
+                controller: _confirmPasswordController,
                 validator: (String? confirmpassword){
                   if(confirmpassword == null || confirmpassword.isEmpty){
                     return "Required";
@@ -189,7 +223,7 @@ class _MyFormState extends State<MyForm> {
                   // Checking the values of both the entered password & the confirm password
                   // Required : Controller for that case
 
-                  if(confirmpassword != _password.value.text){
+                  if(confirmpassword != _passwordController.value.text){
                     return "Passwords do not match.";
                   }
 
@@ -211,6 +245,7 @@ class _MyFormState extends State<MyForm> {
 
               // contact number
               TextFormField(
+              controller: _contactNumberController,
                 // This property does not work for web
                 // keyboardType: TextInputType.phone,
 
@@ -240,12 +275,46 @@ class _MyFormState extends State<MyForm> {
           )
           ),
       ),
+
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.done),
-        onPressed: (){
-          _myFormKey.currentState?.validate();
+        onPressed: () async {
+          if (_myFormKey.currentState?.validate() ?? false) {
+            // If the form is valid, retrieve form data
+            final firstName = _firstNameController.text;
+            final lastName = _lastNameController.text;
+            final email = _emailController.text;
+            final password = _passwordController.text;
+            final contactNumber = _contactNumberController.text;
+
+            // Call userRegistration method with form data
+            try {
+              await userRegistration(
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                password: password,
+                profilePic: "",
+                contactNumber: contactNumber,
+              );
+
+              // Display success message using a SnackBar
+              _scaffoldKey.currentState?.showSnackBar(
+                SnackBar(
+                  content: Text('Registration successful!'),
+                ),
+              );
+
+              // Do something after successful registration if needed
+              print('Registration successful!');
+            } catch (error) {
+              // Handle registration error
+              print('Error during registration: $error');
+            }
+          }
         },
       ),
+
     );
   }
 }
