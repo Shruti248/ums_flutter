@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 void main(){
   runApp(
@@ -20,6 +21,57 @@ class _MyFormState extends State<MyForm> {
 
   var _password = TextEditingController();
   var _confirmPassword = TextEditingController();
+
+  late Future<Map<String, dynamic>> newUser;
+
+  Future<Map<String, dynamic>> userRegistration() async {
+    try {
+      final dio = Dio();
+      dio.options.headers['Access-Control-Allow-Origin'] = '*';
+      //
+      // final formData = FormData.fromMap({
+      //   'data': json.encode(
+      //     {
+      //       "firstName": "abc",
+      //       "lastName": "xyz",
+      //       "email": "r@gmail.com",
+      //       "password": "hahuihuiygvb",
+      //       "profilePic": "",
+      //       "contactNumber": "9086541234",
+      //     },
+      //   ),
+      // });
+
+
+      final res = await dio.post(
+        'http://localhost:3000/api/v1/register',
+        data:         {
+          "firstName": "abc",
+          "lastName": "xyz",
+          "email": "t@gmail.com",
+          "password": "hahuihuiygvb",
+          "profilePic": "",
+          "contactNumber": "9086541234",
+        },
+      );
+
+      if (res.statusCode == 201) {
+        final data = res.data; // No need to use jsonDecode since Dio does it automatically
+        print(data);
+        return data;
+      } else {
+        throw "Failed to register. Status code: ${res.statusCode}";
+      }
+    } catch (err) {
+      print('Error during registration: $err');
+      throw err.toString();
+    }
+  }
+
+  void initState() {
+    super.initState();
+    newUser = userRegistration();
+  }
 
   @override
   Widget build(BuildContext context) {
