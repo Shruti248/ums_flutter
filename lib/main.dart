@@ -24,7 +24,10 @@ class _MyFormState extends State<MyForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register'),),
+      appBar: AppBar(title: Text('REGISTER' ,
+        style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+        ),centerTitle: true,
+      ),
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 25.0 , horizontal: 25.0),
         child: Form(
