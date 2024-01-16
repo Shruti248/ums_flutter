@@ -57,8 +57,6 @@ class _UMSHomePageState extends State<UMSHomePage> {
 
           itemCount : jsonList == null?0 :jsonList.length,
           itemBuilder: (BuildContext context , int index){
-            print('profile pics : ');
-            print(jsonList[index]['profilePic']);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -72,7 +70,7 @@ class _UMSHomePageState extends State<UMSHomePage> {
 
                   child: Image.network(
                     (jsonList[index]['profilePic'] != 'undefined' && jsonList[index]['profilePic'] != '')
-                        ? "uploads/${jsonList[index]['profilePic']}"
+                        ?'http://localhost:3000/uploads/${jsonList[index]['profilePic']}'
                         : 'assets/defaultProfilePic.jpg',
                     width: 50.0,
                     height: 50.0,
