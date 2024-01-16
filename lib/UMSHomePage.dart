@@ -57,27 +57,39 @@ class _UMSHomePageState extends State<UMSHomePage> {
 
           itemCount : jsonList == null?0 :jsonList.length,
           itemBuilder: (BuildContext context , int index){
+            print('profile pics : ');
+            print(jsonList[index]['profilePic']);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Card(
               elevation: 5,
               child: ListTile(
-                leading: ClipRect(
-                  child: jsonList[index]['profilePic'] != null
-                      ? Image.network(
-                    jsonList[index]['profilePic'],
-                    width: 50.0, // Adjust the width as needed
-                    height: 50.0, // Adjust the height as needed
+
+
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(25.0), // Adjust the border radius as needed
+
+                  child: Image.network(
+                    (jsonList[index]['profilePic'] != 'undefined' && jsonList[index]['profilePic'] != '')
+                        ? jsonList[index]['profilePic']
+                        : 'assets/defaultProfilePic.jpg',
+                    width: 50.0,
+                    height: 50.0,
                     fit: BoxFit.cover,
-                  )
-                      : Image.network(
-                    '',
-                    width: 50.0, // Adjust the width as needed
-                    height: 50.0, // Adjust the height as needed
-                    fit: BoxFit.cover,
+                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                      // Handle error loading image (e.g., display a placeholder image)
+                      return Image.asset(
+                        'assets/defaultProfilePic.jpg', // Replace with your placeholder image asset
+                        width: 50.0,
+                        height: 50.0,
+                        fit: BoxFit.cover,
+                      );
+                    },
                   ),
                 ),
+
+
 
 
                 title: Text(jsonList[index]['firstName'] + ' ' + jsonList[index]['lastName']),
