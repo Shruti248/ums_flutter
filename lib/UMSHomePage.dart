@@ -72,7 +72,7 @@ class _UMSHomePageState extends State<UMSHomePage> {
 
                   child: Image.network(
                     (jsonList[index]['profilePic'] != 'undefined' && jsonList[index]['profilePic'] != '')
-                        ? jsonList[index]['profilePic']
+                        ? "uploads/${jsonList[index]['profilePic']}"
                         : 'assets/defaultProfilePic.jpg',
                     width: 50.0,
                     height: 50.0,
