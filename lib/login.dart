@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ums_flutter/register.dart';
+import 'UMSHomePage.dart';
 
 class MyLoginForm extends StatefulWidget {
   const MyLoginForm({super.key});
@@ -107,42 +109,78 @@ class _MyLoginFormState extends State<MyLoginForm> {
 
                 const SizedBox(height: 30),
 
+                ElevatedButton(
+                  child: Text('Login'),
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(15)),
+                      shape: MaterialStateProperty.all<OutlinedBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                      ),
+                      minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 50)),
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                    ),
+                  onPressed: () async {
+                    if (_myFormKey.currentState?.validate() ?? false) {
+                      // If the form is valid, retrieve form data
+                      final email = _emailController.text;
+                      final password = _passwordController.text;
+
+                      // Call userRegistration method with form data
+                      try {
+                        await userLogin(
+                          email: email,
+                          password: password,
+                        );
+
+                        // Display success message using a SnackBar
+                        _scaffoldKey.currentState?.showSnackBar(
+                          SnackBar(
+                            content: Text('Login successful!'),
+                          ),
+                        );
+
+                        // Do something after successful registration if needed
+                        print('Login successful!');
+
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => UMSHomePage())
+                        );
+
+                      } catch (error) {
+                        // Handle registration error
+                        print('Error during logging in : $error');
+                      }
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 30),
+
+
+                TextButton(
+                  onPressed: () {
+                    // Navigate to the registration page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyForm()),
+                    );
+                  },
+                  child: Text('Do not have an Account ? Register. '),
+                ),
+
               ],
             )
         ),
       ),
 
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.done),
-        onPressed: () async {
-          if (_myFormKey.currentState?.validate() ?? false) {
-            // If the form is valid, retrieve form data
-            final email = _emailController.text;
-            final password = _passwordController.text;
 
-            // Call userRegistration method with form data
-            try {
-              await userLogin(
-                email: email,
-                password: password,
-              );
 
-              // Display success message using a SnackBar
-              _scaffoldKey.currentState?.showSnackBar(
-                SnackBar(
-                  content: Text('Login successful!'),
-                ),
-              );
 
-              // Do something after successful registration if needed
-              print('Login successful!');
-            } catch (error) {
-              // Handle registration error
-              print('Error during logging in : $error');
-            }
-          }
-        },
-      ),
+
 
     );
   }

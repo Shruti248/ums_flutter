@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
 
+import 'UMSHomePage.dart';
+import 'login.dart';
+
 class MyForm extends StatefulWidget {
   const MyForm({Key? key});
 
@@ -243,6 +246,7 @@ class _MyFormState extends State<MyForm> {
                   child: Text('Select Profile Picture'),
                 ),
                 const SizedBox(height: 30),
+
                 TextFormField(
                   controller: _contactNumberController,
                   validator: (String? contactNumber) {
@@ -265,45 +269,82 @@ class _MyFormState extends State<MyForm> {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                   ),
-                )
+                ),
+
+                const SizedBox(height: 30),
+
+                ElevatedButton(
+                  child: Text('Register'),
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(15)),
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                    ),
+                    minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 50)),
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  onPressed: () async {
+                    if (_myFormKey.currentState?.validate() ?? false) {
+                      final firstName = _firstNameController.text;
+                      final lastName = _lastNameController.text;
+                      final email = _emailController.text;
+                      final password = _passwordController.text;
+                      final contactNumber = _contactNumberController.text;
+
+                      try {
+                        await userRegistration(
+                          firstName: firstName,
+                          lastName: lastName,
+                          email: email,
+                          password: password,
+                          profilePic: profilePicFile,
+
+                          contactNumber: contactNumber,
+                        );
+
+                        _scaffoldKey.currentState?.showSnackBar(
+                          SnackBar(
+                            content: Text('Registration successful!'),
+                          ),
+                        );
+
+                        print('Registration successful!');
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => UMSHomePage()),
+                        );
+
+                      } catch (error) {
+                        print('Error during registration: $error');
+                      }
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 30),
+
+                TextButton(
+                  onPressed: () {
+                    // Navigate to the registration page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyLoginForm()),
+                    );
+                  },
+                  child: Text('Already registered ? Login. '),
+                ),
+
               ],
             ),
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.done),
-    onPressed: () async {
-    if (_myFormKey.currentState?.validate() ?? false) {
-    final firstName = _firstNameController.text;
-    final lastName = _lastNameController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final contactNumber = _contactNumberController.text;
 
-    try {
-      await userRegistration(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        password: password,
-        profilePic: profilePicFile,
 
-        contactNumber: contactNumber,
-      );
 
-      _scaffoldKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text('Registration successful!'),
-        ),
-      );
-
-      print('Registration successful!');
-    } catch (error) {
-      print('Error during registration: $error');
-    }
-    }
-    },
-        ),
     );
   }
 }
