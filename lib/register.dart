@@ -65,6 +65,7 @@ class _MyFormState extends State<MyForm> {
     try {
       final dio = Dio();
       dio.options.headers['Access-Control-Allow-Origin'] = '*';
+      dio.options.extra['withCredentials'] = true;
 
       FormData formData = FormData();
 

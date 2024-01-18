@@ -28,6 +28,7 @@ class _MyLoginFormState extends State<MyLoginForm> {
     try {
       final dio = Dio();
       dio.options.headers['Access-Control-Allow-Origin'] = '*';
+      dio.options.extra['withCredentials'] = true;
 
       final res = await dio.post(
         'http://localhost:3000/api/v1/login',
@@ -145,7 +146,7 @@ class _MyLoginFormState extends State<MyLoginForm> {
                         // Do something after successful registration if needed
                         print('Login successful!');
 
-                        Navigator.push(
+                        Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (context) => UMSHomePage())
                         );

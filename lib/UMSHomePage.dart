@@ -17,7 +17,9 @@ class _UMSHomePageState extends State<UMSHomePage> {
   void getUsers()  async {
       try{
         final dio = Dio();
+
         dio.options.headers['Access-Control-Allow-Origin'] = '*';
+        dio.options.extra['withCredentials'] = true;
 
         final res = await dio.get('http://localhost:3000/api/v1/users');
 

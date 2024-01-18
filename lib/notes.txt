@@ -1,0 +1,13 @@
+Cookies for authorization do not work directly :
+
+1) Add credentials = true in teh cors middleware & also specify teh port on which you want to share the credentials
+
+app.use(cors({
+    origin: ["http://localhost:8200", "http://127.0.0.1:8200"],
+    credentials: true,
+}));
+
+
+2) In flutter -- use teh existing credentials for all teh dio request
+
+dio.options.extra['withCredentials'] = true;
