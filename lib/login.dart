@@ -136,12 +136,41 @@ class _MyLoginFormState extends State<MyLoginForm> {
                           password: password,
                         );
 
-                        // Display success message using a SnackBar
-                        _scaffoldKey.currentState?.showSnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Login successful!'),
+                            // Making teh custom SnackBar
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              content: Container(
+                                padding: const EdgeInsets.all(16),
+                                // height: 20,
+                                decoration: const BoxDecoration(
+                                  color: Colors.green,
+                                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                                ),
+                                  child : const Row(
+                                    children: [
+                                       SizedBox(width: 40,),
+                                       Expanded(
+                                         child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                             Text('Login Successful' ,
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12
+                                                ),
+                                            ),
+                                          ],
+                                                                               ),
+                                       ),
+                                    ],
+                                  )
+                              ),
                           ),
                         );
+
 
                         // Do something after successful registration if needed
                         print('Login successful!');
@@ -152,6 +181,41 @@ class _MyLoginFormState extends State<MyLoginForm> {
                         );
 
                       } catch (error) {
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            // Making teh custom SnackBar
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            content: Container(
+                                padding: const EdgeInsets.all(16),
+                                // height: 20,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                                ),
+                                child : Row(
+                                  children: [
+                                    const SizedBox(width: 40,),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Error during logging in : $error' ,
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ),
+                          ),
+                        );
                         // Handle registration error
                         print('Error during logging in : $error');
                       }

@@ -53,6 +53,13 @@ class _MyFormState extends State<MyForm> {
     }
   }
 
+  bool _isValidEmail(String email) {
+    // Regular expression for a simple email validation
+    final emailRegExp = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
+    return emailRegExp.hasMatch(email);
+  }
+
+
 
   Future<Map<String, dynamic>> userRegistration({
     required String firstName,
@@ -85,8 +92,6 @@ class _MyFormState extends State<MyForm> {
         ));
       }
 
-      print('form data ');
-      print(formData);
 
       final res = await dio.post(
         'http://localhost:3000/api/v1/register',
@@ -165,11 +170,14 @@ class _MyFormState extends State<MyForm> {
                   ],
                 ),
                 const SizedBox(height: 30),
+
                 TextFormField(
                   controller: _emailController,
                   validator: (String? email) {
                     if (email == null || email.isEmpty) {
-                      return "Required";
+                      return "Email is required";
+                    } else if (!_isValidEmail(email)) {
+                      return "Enter a valid email address";
                     }
                     return null;
                   },
@@ -181,6 +189,7 @@ class _MyFormState extends State<MyForm> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: _passwordController,
@@ -306,9 +315,38 @@ class _MyFormState extends State<MyForm> {
                           contactNumber: contactNumber,
                         );
 
-                        _scaffoldKey.currentState?.showSnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Registration successful!'),
+                            // Making teh custom SnackBar
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            content: Container(
+                                padding: const EdgeInsets.all(16),
+                                // height: 20,
+                                decoration: const BoxDecoration(
+                                  color: Colors.green,
+                                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                                ),
+                                child : const Row(
+                                  children: [
+                                    SizedBox(width: 40,),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Registration Successful' ,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ),
                           ),
                         );
 
@@ -320,6 +358,43 @@ class _MyFormState extends State<MyForm> {
                         );
 
                       } catch (error) {
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            // Making teh custom SnackBar
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            content: Container(
+                                padding: const EdgeInsets.all(16),
+                                // height: 20,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                                ),
+                                child : Row(
+                                  children: [
+                                    const SizedBox(width: 40,),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Error during registration: $error' ,
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ),
+                          ),
+                        );
+
+
                         print('Error during registration: $error');
                       }
                     }
