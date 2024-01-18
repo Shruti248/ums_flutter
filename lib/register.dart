@@ -74,6 +74,10 @@ class _MyFormState extends State<MyForm> {
       dio.options.headers['Access-Control-Allow-Origin'] = '*';
       dio.options.extra['withCredentials'] = true;
 
+      dio.options.validateStatus = (status) {
+        return status! < 500; // return true if status code is less than 500
+      };
+
       FormData formData = FormData();
 
       formData.fields.addAll([
@@ -103,10 +107,10 @@ class _MyFormState extends State<MyForm> {
         // print(data);
         return data;
       } else {
-        throw 'Failed to register. Status code: ${res.statusCode}';
+        throw '${res.statusCode} : Failed to register. ${res.data['message']}';
       }
     } catch (err) {
-      print('Error during registration: $err');
+      print('$err');
       throw err.toString();
     }
   }
@@ -379,7 +383,7 @@ class _MyFormState extends State<MyForm> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text('Error during registration: $error' ,
+                                          Text('$error' ,
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 12
@@ -393,8 +397,6 @@ class _MyFormState extends State<MyForm> {
                             ),
                           ),
                         );
-
-
                         print('Error during registration: $error');
                       }
                     }
