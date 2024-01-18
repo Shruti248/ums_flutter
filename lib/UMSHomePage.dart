@@ -52,51 +52,54 @@ class _UMSHomePageState extends State<UMSHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Users')
+          title: const Text('USERS'),
+          centerTitle: true,
+          titleTextStyle: TextStyle(fontWeight: FontWeight.bold , fontSize: 20),
         ),
 
       body: ListView.builder(
 
           itemCount : jsonList == null?0 :jsonList.length,
           itemBuilder: (BuildContext context , int index){
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Card(
-              elevation: 5,
-              child: ListTile(
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Card(
+                elevation: 5,
+                child: ListTile(
 
 
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(25.0), // Adjust the border radius as needed
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(25.0), // Adjust the border radius as needed
 
-                  child: Image.network(
-                    (jsonList[index]['profilePic'] != 'undefined' && jsonList[index]['profilePic'] != '')
-                        ?'http://localhost:3000/uploads/${jsonList[index]['profilePic']}'
-                        : 'assets/defaultProfilePic.jpg',
-                    width: 50.0,
-                    height: 50.0,
-                    fit: BoxFit.cover,
-                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                      // Handle error loading image (e.g., display a placeholder image)
-                      return Image.asset(
-                        'assets/defaultProfilePic.jpg', // Replace with your placeholder image asset
-                        width: 50.0,
-                        height: 50.0,
-                        fit: BoxFit.cover,
-                      );
-                    },
+                    child: Image.network(
+                      (jsonList[index]['profilePic'] != 'undefined' && jsonList[index]['profilePic'] != '')
+                          ?'http://localhost:3000/uploads/${jsonList[index]['profilePic']}'
+                          : 'assets/defaultProfilePic.jpg',
+                      width: 50.0,
+                      height: 50.0,
+                      fit: BoxFit.cover,
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        // Handle error loading image (e.g., display a placeholder image)
+                        return Image.asset(
+                          'assets/defaultProfilePic.jpg', // Replace with your placeholder image asset
+                          width: 50.0,
+                          height: 50.0,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    ),
                   ),
-                ),
 
 
-
-
-                title: Text(jsonList[index]['firstName'] + ' ' + jsonList[index]['lastName']),
-                subtitle: Text(jsonList[index]['email']),
+                  title: Text(jsonList[index]['firstName'] + ' ' + jsonList[index]['lastName']),
+                  subtitle: Text(jsonList[index]['email']),
+                )
               )
-            )
-          ],
+            ],
+          ),
         );
       })
     
