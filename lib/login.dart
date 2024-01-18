@@ -13,7 +13,6 @@ class MyLoginForm extends StatefulWidget {
 
 class _MyLoginFormState extends State<MyLoginForm> {
   var _myFormKey=GlobalKey<FormState>();
-  GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
   // Declare controllers for each form field
   var _emailController = TextEditingController();
@@ -30,6 +29,10 @@ class _MyLoginFormState extends State<MyLoginForm> {
       dio.options.headers['Access-Control-Allow-Origin'] = '*';
       dio.options.extra['withCredentials'] = true;
 
+      dio.options.validateStatus = (status) {
+        return status! < 500; // return true if status code is less than 500
+      };
+
       final res = await dio.post(
         'http://localhost:3000/api/v1/login',
         data: {
@@ -38,15 +41,16 @@ class _MyLoginFormState extends State<MyLoginForm> {
         },
       );
 
+      print(res);
+
       if (res.statusCode == 200) {
         final data = res.data; // No need to use jsonDecode since Dio does it automatically
         print(data);
         return data;
       } else {
-        throw 'Failed to Login. Status code: ${res.statusCode}';
+        throw '${res.statusCode} : Failed to Login. ${" " + res.data['message']}';
       }
     } catch (err) {
-      print('Error during logging in: $err');
       throw err.toString();
     }
   }
@@ -131,10 +135,12 @@ class _MyLoginFormState extends State<MyLoginForm> {
 
                       // Call userRegistration method with form data
                       try {
-                        await userLogin(
+                        Map<String, dynamic> res = await userLogin(
                           email: email,
                           password: password,
                         );
+
+                        print(res);
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -180,6 +186,8 @@ class _MyLoginFormState extends State<MyLoginForm> {
                             MaterialPageRoute(builder: (context) => UMSHomePage())
                         );
 
+
+
                       } catch (error) {
 
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -202,7 +210,7 @@ class _MyLoginFormState extends State<MyLoginForm> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text('Error during logging in : $error' ,
+                                          Text('${error}' ,
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 12
@@ -217,7 +225,7 @@ class _MyLoginFormState extends State<MyLoginForm> {
                           ),
                         );
                         // Handle registration error
-                        print('Error during logging in : $error');
+                        // print('Error during logging in : $error');
                       }
                     }
                   },

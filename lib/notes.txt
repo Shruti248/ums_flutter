@@ -11,3 +11,54 @@ app.use(cors({
 2) In flutter -- use teh existing credentials for all teh dio request
 
 dio.options.extra['withCredentials'] = true;
+
+3) Dio throws the exception for every status code that is not between 200 to 299.
+Any code between 200 to 299 is successful & any other code is unsuycessfull. So it will dircetly throw the DioException & will not allow us to display or catch teh custom errors taht si sent by the server.
+
+in such cases use this code :
+
+      dio.options.validateStatus = (status) {
+        return status! < 500; // return true if status code is less than 500
+      };
+
+ this make the status of that range valid & allows us to use the soecific errors of teh server in the try block itself -----
+
+ one such example of it is :
+
+     try {
+       final dio = Dio();
+       dio.options.headers['Access-Control-Allow-Origin'] = '*';
+       dio.options.extra['withCredentials'] = true;
+
+        ---main-----
+
+        without the below code : the Dio always throws its own exception in teh catch & does not allow us to catch teh custom errors ---
+
+        ---main-----
+
+       dio.options.validateStatus = (status) {
+         return status! < 500; // return true if status code is less than 500
+       };
+       ---main-----
+
+       final res = await dio.post(
+         'http://localhost:3000/api/v1/login',
+         data: {
+           'email': email,
+           'password': password,
+         },
+       );
+
+       print(res);
+
+       if (res.statusCode == 200) {
+         final data = res.data; // No need to use jsonDecode since Dio does it automatically
+         print(data);
+         return data;
+       } else {
+         throw '${res.statusCode} : Failed to Login. ${" " + res.data['message']}';
+       }
+     } catch (err) {
+       throw err.toString();
+     }
+   }
