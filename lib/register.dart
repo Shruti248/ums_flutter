@@ -1,24 +1,14 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:get/get.dart';
 import 'dart:typed_data';
 
 import 'UMSHomePage.dart';
 import 'login.dart';
 
-class MyForm extends StatefulWidget {
-  const MyForm({Key? key});
 
-  @override
-  State<MyForm> createState() => _MyFormState();
-}
-
-class _MyFormState extends State<MyForm> {
-  var _myFormKey = GlobalKey<FormState>();
-  GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
-
+class RegisterController extends GetxController{
   var _firstNameController = TextEditingController();
   var _lastNameController = TextEditingController();
   var _emailController = TextEditingController();
@@ -70,15 +60,15 @@ class _MyFormState extends State<MyForm> {
     required String contactNumber,
   }) async {
     try {
-      final dio = Dio();
-      dio.options.headers['Access-Control-Allow-Origin'] = '*';
-      dio.options.extra['withCredentials'] = true;
+      final dio.Dio dioClient = dio.Dio();
+      dioClient.options.headers['Access-Control-Allow-Origin'] = '*';
+      dioClient.options.extra['withCredentials'] = true;
 
-      dio.options.validateStatus = (status) {
+      dioClient.options.validateStatus = (status) {
         return status! < 500; // return true if status code is less than 500
       };
 
-      FormData formData = FormData();
+     dio.FormData formData = dio.FormData();
 
       formData.fields.addAll([
         MapEntry('firstName', firstName),
@@ -92,12 +82,12 @@ class _MyFormState extends State<MyForm> {
         // Convert Uint8List to MultipartFile
         formData.files.add(MapEntry(
           'profilePic',
-          MultipartFile.fromBytes(profilePic, filename: 'profilePic.jpg'),
+          dio.MultipartFile.fromBytes(profilePic, filename: 'profilePic.jpg'),
         ));
       }
 
 
-      final res = await dio.post(
+      final res = await dioClient.post(
         'http://localhost:3000/api/v1/register',
         data: formData,
       );
@@ -115,6 +105,14 @@ class _MyFormState extends State<MyForm> {
     }
   }
 
+}
+
+
+class MyForm extends StatelessWidget {
+  // var _myFormKey = GlobalKey<FormState>();
+  // GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
+
+  final registerController = Get.put(RegisterController());
 
   @override
   Widget build(BuildContext context) {
@@ -129,14 +127,14 @@ class _MyFormState extends State<MyForm> {
         body: Container(
           padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
           child: Form(
-            key: _myFormKey,
+            // key: _myFormKey,
             child: Column(
               children: <Widget>[
                 Row(
                   children: [
                     Expanded(
                       child: TextFormField(
-                        controller: _firstNameController,
+                        controller: registerController._firstNameController,
                         validator: (String? firstName) {
                           if (firstName == null || firstName.isEmpty) {
                             return "Required";
@@ -155,7 +153,7 @@ class _MyFormState extends State<MyForm> {
                     SizedBox(width: 10),
                     Expanded(
                       child: TextFormField(
-                        controller: _lastNameController,
+                        controller: registerController._lastNameController,
                         validator: (String? lastName) {
                           if (lastName == null || lastName.isEmpty) {
                             return "Required";
@@ -176,11 +174,11 @@ class _MyFormState extends State<MyForm> {
                 const SizedBox(height: 30),
 
                 TextFormField(
-                  controller: _emailController,
+                  controller: registerController._emailController,
                   validator: (String? email) {
                     if (email == null || email.isEmpty) {
                       return "Email is required";
-                    } else if (!_isValidEmail(email)) {
+                    } else if (!registerController._isValidEmail(email)) {
                       return "Enter a valid email address";
                     }
                     return null;
@@ -196,7 +194,7 @@ class _MyFormState extends State<MyForm> {
 
                 const SizedBox(height: 30),
                 TextFormField(
-                  controller: _passwordController,
+                  controller: registerController._passwordController,
                   validator: (String? password) {
                     if (password == null || password.isEmpty) {
                       return "Required";
@@ -217,13 +215,13 @@ class _MyFormState extends State<MyForm> {
                 ),
                 const SizedBox(height: 30),
                 TextFormField(
-                  controller: _confirmPasswordController,
+                  controller: registerController._confirmPasswordController,
                   validator: (String? confirmPassword) {
                     if (confirmPassword == null || confirmPassword.isEmpty) {
                       return "Required";
                     }
 
-                    if (confirmPassword != _passwordController.value.text) {
+                    if (confirmPassword != registerController._passwordController.value.text) {
                       return "Passwords do not match.";
                     }
 
@@ -243,15 +241,20 @@ class _MyFormState extends State<MyForm> {
                 // NULLL Over HERE only -----------------------
                 TextButton(
                   onPressed: () async {
-                    Uint8List? fileBytes = await pickFile();
+                    Uint8List? fileBytes = await registerController.pickFile();
                     // print("File : ");
                     // print(fileBytes);
                     if (fileBytes != null) {
                       // You can use fileBytes as needed
-                      setState(() {
-                        // Assuming profilePicFile is of type Uint8List?
-                        profilePicFile = fileBytes;
-                      });
+                      // setState(() {
+                      //   // Assuming profilePicFile is of type Uint8List?
+                      //   profilePicFile = fileBytes;
+                      // });
+
+                      registerController.profilePicFile = fileBytes;
+
+                      registerController.update();
+
                       // print("ProfilePicFile : ");
                       // print(profilePicFile);
                     }
@@ -262,7 +265,7 @@ class _MyFormState extends State<MyForm> {
                 const SizedBox(height: 30),
 
                 TextFormField(
-                  controller: _contactNumberController,
+                  controller: registerController._contactNumberController,
                   validator: (String? contactNumber) {
                     if (contactNumber == null || contactNumber.isEmpty) {
                       return "Required";
@@ -301,105 +304,112 @@ class _MyFormState extends State<MyForm> {
                     foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                   ),
                   onPressed: () async {
-                    if (_myFormKey.currentState?.validate() ?? false) {
-                      final firstName = _firstNameController.text;
-                      final lastName = _lastNameController.text;
-                      final email = _emailController.text;
-                      final password = _passwordController.text;
-                      final contactNumber = _contactNumberController.text;
+                      final firstName = registerController._firstNameController.text;
+                      final lastName = registerController._lastNameController.text;
+                      final email = registerController._emailController.text;
+                      final password = registerController._passwordController.text;
+                      final contactNumber = registerController._contactNumberController.text;
 
                       try {
-                        await userRegistration(
+                        await registerController.userRegistration(
                           firstName: firstName,
                           lastName: lastName,
                           email: email,
                           password: password,
-                          profilePic: profilePicFile,
+                          profilePic: registerController.profilePicFile,
 
                           contactNumber: contactNumber,
                         );
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            // Making teh custom SnackBar
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            content: Container(
-                                padding: const EdgeInsets.all(16),
-                                // height: 20,
-                                decoration: const BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                                ),
-                                child : const Row(
-                                  children: [
-                                    SizedBox(width: 40,),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text('Registration Successful' ,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-                          ),
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   SnackBar(
+                        //     // Making teh custom SnackBar
+                        //     behavior: SnackBarBehavior.floating,
+                        //     backgroundColor: Colors.transparent,
+                        //     elevation: 0,
+                        //     content: Container(
+                        //         padding: const EdgeInsets.all(16),
+                        //         // height: 20,
+                        //         decoration: const BoxDecoration(
+                        //           color: Colors.green,
+                        //           borderRadius: BorderRadius.all(Radius.circular(20)),
+                        //         ),
+                        //         child : const Row(
+                        //           children: [
+                        //             SizedBox(width: 40,),
+                        //             Expanded(
+                        //               child: Column(
+                        //                 crossAxisAlignment: CrossAxisAlignment.start,
+                        //                 children: [
+                        //                   Text('Registration Successful' ,
+                        //                     style: TextStyle(
+                        //                         color: Colors.white,
+                        //                         fontSize: 12
+                        //                     ),
+                        //                   ),
+                        //                 ],
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         )
+                        //     ),
+                        //   ),
+                        // );
+                        //
+                        Get.snackbar(
+                            'Registration Successful' , ''
                         );
 
                         print('Registration successful!');
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => UMSHomePage()),
-                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) => UMSHomePage()),
+                        // );
+
+                        Get.offAll(UMSHomePage());
 
                       } catch (error) {
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            // Making teh custom SnackBar
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            content: Container(
-                                padding: const EdgeInsets.all(16),
-                                // height: 20,
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                                ),
-                                child : Row(
-                                  children: [
-                                    const SizedBox(width: 40,),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text('$error' ,
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-                          ),
-                        );
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   SnackBar(
+                        //     // Making teh custom SnackBar
+                        //     behavior: SnackBarBehavior.floating,
+                        //     backgroundColor: Colors.transparent,
+                        //     elevation: 0,
+                        //     content: Container(
+                        //         padding: const EdgeInsets.all(16),
+                        //         // height: 20,
+                        //         decoration: const BoxDecoration(
+                        //           color: Colors.red,
+                        //           borderRadius: BorderRadius.all(Radius.circular(20)),
+                        //         ),
+                        //         child : Row(
+                        //           children: [
+                        //             const SizedBox(width: 40,),
+                        //             Expanded(
+                        //               child: Column(
+                        //                 crossAxisAlignment: CrossAxisAlignment.start,
+                        //                 children: [
+                        //                   Text('$error' ,
+                        //                     style: const TextStyle(
+                        //                         color: Colors.white,
+                        //                         fontSize: 12
+                        //                     ),
+                        //                   ),
+                        //                 ],
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         )
+                        //     ),
+                        //   ),
+                        // );
+
+                        Get.snackbar("Try Again ! " , '${error}');
+
                         print('Error during registration: $error');
                       }
-                    }
                   },
                 ),
 
@@ -408,10 +418,12 @@ class _MyFormState extends State<MyForm> {
                 TextButton(
                   onPressed: () {
                     // Navigate to the registration page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyLoginForm()),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => MyLoginForm()),
+                    // );
+
+                    Get.to(MyLoginForm());
                   },
                   child: Text('Already registered ? Login. '),
                 ),

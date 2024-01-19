@@ -457,7 +457,7 @@ class MyLoginForm extends StatelessWidget {
                         //     MaterialPageRoute(builder: (context) => UMSHomePage())
                         // );
 
-                        Get.to((UMSHomePage()));
+                        Get.offAll(UMSHomePage());
 
                       } catch (error) {
 
