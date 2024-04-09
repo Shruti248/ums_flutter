@@ -1,3 +1,8 @@
+Something Went Wrong !
+
+Sorry, An unexpected error occured, it will be resolved shortly !
+
+
 Cookies for authorization do not work directly :
 
 1) Add credentials = true in teh cors middleware & also specify teh port on which you want to share the credentials
